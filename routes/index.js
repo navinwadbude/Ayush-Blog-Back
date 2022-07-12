@@ -1,6 +1,6 @@
 const express = require("express");
 const route = new express.Router();
-const { signup ,login} = require("../controllers/controller");
+const { signup, login } = require("../controllers/controller");
 
 route.get("/", (req, res) => {
   res.send("hello mr. sadik");

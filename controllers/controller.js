@@ -1,37 +1,40 @@
-const User = require('../model/index')
+const jwt = require("jsonwebtoken");
+const token = jwt.sign({ foo: "62cc2f9f0e799ada3e52980c" }, "shhhhh");
+const User = require("../model/index");
+console.log("token::", token);
+
+var decoded = jwt.verify(token, "shhhhh");
+console.log("saurabh", decoded.foo);
 module.exports = {
-    signup:async(req,res)=>{
-        try{
-            const result = await User.find({ name: req.body.name});
-            console.log("result",result);
-            // if (result) {
-            //     return   res.send('user already exist')
-                
-            // }
-            // const user = new User(req.body)
-            console.log("user",{...req.body});
+  signup: async (req, res) => {
+    try {
+      const result = await User.findOne({ email: req.body.email });
+      console.log("result", result);
+      if (result) {
+        return res.status(201).json({ message: "user already exist" });
+      }
 
-            const createuser = await User({...req.body}).save();
-            res.status(201).send(createuser)
-        }catch(error){
-            console.error("Error", error)
-           res.status(400).send(error);
-        }
-       
-    },
-   
+      console.log("user", { ...req.body });
 
-    login: async (req, res) => {
-        const result = await User.find({ name: req.body.username });
-        console.log(result)
-        const db_pass = result[0].password;
-        
-        const user_pass = req.body.password;
-        console.log("db_pass",db_pass);
-        if(db_pass == user_pass){
-            res.send('login successfully')
-        }else{
-            res.send('invalid login details')
-        }
+      const createuser = await User({ ...req.body }).save();
+      res.status(201).send(createuser);
+    } catch (error) {
+      console.error("Error", error);
+      res.status(400).send(error);
     }
-}
+  },
+
+  login: async (req, res) => {
+    const result = await User.findOne({ email: req.body.email });
+    console.log(result);
+    const db_pass = result.password;
+
+    const user_pass = req.body.password;
+    console.log("db_pass", db_pass);
+    if (db_pass == user_pass) {
+      res.send("login successfully");
+    } else {
+      res.send("invalid login details");
+    }
+  },
+};
