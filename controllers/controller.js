@@ -1,13 +1,14 @@
 const jwt = require("jsonwebtoken");
-const token = jwt.sign({ foo: "62cc2f9f0e799ada3e52980c" }, "shhhhh");
 const User = require("../model/index");
-console.log("token::", token);
 
-var decoded = jwt.verify(token, "shhhhh");
-console.log("saurabh", decoded.foo);
+const bcrypt = require("bcrypt");
 module.exports = {
   signup: async (req, res) => {
     try {
+      const pass = await bcrypt.hash(req.body.password, 10);
+      req.body.password = pass;
+      const cpass = await bcrypt.hash(req.body.cpassword, 10);
+      req.body.cpassword = cpass;
       const result = await User.findOne({ email: req.body.email });
       console.log("result", result);
       if (result) {
@@ -26,13 +27,26 @@ module.exports = {
 
   login: async (req, res) => {
     const result = await User.findOne({ email: req.body.email });
-    console.log(result);
+    if (!result) {
+      return res.status(500).send({
+        error: "user is not registered",
+      });
+    }
+
+    const token = jwt.sign({ foo: result.id }, "shhhhh");
+
+    console.log("==========>", token);
+    var decoded = jwt.verify(token, "shhhhh");
+    console.log(decoded);
     const db_pass = result.password;
 
     const user_pass = req.body.password;
     console.log("db_pass", db_pass);
     if (db_pass == user_pass) {
-      res.send("login successfully");
+      res.status(200).json({
+        message: "login successfully",
+        token: token,
+      });
     } else {
       res.send("invalid login details");
     }

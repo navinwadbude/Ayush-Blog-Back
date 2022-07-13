@@ -8,11 +8,11 @@ const userSchema = new mongoose.Schema({
   },
 
   password: {
-    type: Number,
+    type: String,
     min: 6,
   },
   cpassword: {
-    type: Number,
+    type: String,
     min: 6,
   },
   email: {
