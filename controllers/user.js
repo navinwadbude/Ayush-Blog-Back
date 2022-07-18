@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
-const User = require("../model/index");
+const User = require("../model/user");
+const { accessToken, refreshToken } = require("../utils/utils");
 
 const bcrypt = require("bcrypt");
 module.exports = {
@@ -7,8 +8,7 @@ module.exports = {
     try {
       const pass = await bcrypt.hash(req.body.password, 10);
       req.body.password = pass;
-      const cpass = await bcrypt.hash(req.body.cpassword, 10);
-      req.body.cpassword = cpass;
+
       const result = await User.findOne({ email: req.body.email });
       console.log("result", result);
       if (result) {
@@ -18,6 +18,9 @@ module.exports = {
       console.log("user", { ...req.body });
 
       const createuser = await User({ ...req.body }).save();
+      if (!createuser) {
+        res.status(201).send("user is not created ");
+      }
       res.status(201).send(createuser);
     } catch (error) {
       console.error("Error", error);
@@ -34,31 +37,19 @@ module.exports = {
         });
       }
 
-      const token = jwt.sign({ f: result.id }, "shhhhh", {
-        expiresIn: "10m",
-      });
-      const accessToken = jwt.sign(
-        { r: result.id, email: result.email },
-        "accessToken",
-        {
-          expiresIn: "2m",
-        }
-      );
-      console.log(token + "=============>", accessToken);
-      var decoded = jwt.verify(token, "shhhhh");
-      var decoded = jwt.verify(accessToken, "accessToken");
       const db_pass = result.password;
       const user_pass = req.body.password;
       const match = await bcrypt.compare(user_pass, db_pass);
       console.log(match);
       if (match === true) {
+        const token = accessToken(result.email, result.id);
         const data = await User.findOneAndUpdate(
           { _id: result.id },
           { $set: { token: token } }
         );
-
+        console.log("=>", token);
         res.status(200).json({
-          token: accessToken,
+          token: token,
           message: "login successfully",
         });
       } else {
@@ -72,21 +63,19 @@ module.exports = {
 
   getUserData: async (req, res) => {
     try {
-    console.log("--0------", req.headers["authorization"]);
-    res.json({ msg: "successfully fetch" });
-    let token = req.headers["authorization"];
-    console.log('=====>', req.headers)
-     if(token){
-        token=token.split(" ")[1]
-        console.log("eeeeeeeeeeeee>",token)
-     }
-      
-      const getUser= await User.findOne({
-        token:token,
-      })
-      res.status(200).json({message: getUser})
+      console.log("--0------", req.headers["authorization"]);
+      res.json({ msg: "successfully fetch" });
+      let token = req.headers["authorization"];
+      console.log("=====>", req.headers);
+      if (token) {
+        token = token.split(" ")[1];
+        console.log("eeeeeeeeeeeee>", token);
+      }
+
+      const getUser = await User.findOne({
+        token: token,
+      });
+      res.status(200).json({ message: getUser });
     } catch (error) {}
   },
-
- 
 };

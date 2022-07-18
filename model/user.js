@@ -10,16 +10,15 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     min: 6,
-  
   },
   email: {
     type: String,
     required: true,
   },
-  token:{
+  token: {
     type: String,
-    default: null
-  }
+    default: null,
+  },
 });
 
 const User = new mongoose.model("User", userSchema);

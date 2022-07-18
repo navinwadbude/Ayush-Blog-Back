@@ -1,7 +1,7 @@
 const express = require("express");
 const route = new express.Router();
 
-const { signup, login, getUserData } = require("../controllers/controller");
+const { signup, login, getUserData } = require("../controllers/user");
 const { verifyToken } = require("../middelware/verfifyToken");
 
 route.get("/", (req, res) => {

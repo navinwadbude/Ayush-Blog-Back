@@ -9,7 +9,7 @@ exports.verifyToken = (req, res, next) => {
   }
   jwt.verify(token, process.env.ACCESS_TOKEN, (err, decoded) => {
     if (err) {
-      return res.status(401).send({ message: "Unaut" });
+      return res.status(401).send({ message: "Unauthorized" });
     } else {
       req.userId = decoded.id;
       next();
