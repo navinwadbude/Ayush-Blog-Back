@@ -34,11 +34,17 @@ module.exports = {
         });
       }
 
-      const token = jwt.sign({ f: result.id }, "shhhhh",{
-        expiresIn: "10m"});
-        const accessToken = jwt.sign({ r: result.id }, "accessToken",{
-          expiresIn: "2m"});
-          console.log(token+"=============>",accessToken);
+      const token = jwt.sign({ f: result.id }, "shhhhh", {
+        expiresIn: "10m",
+      });
+      const accessToken = jwt.sign(
+        { r: result.id, email: result.email },
+        "accessToken",
+        {
+          expiresIn: "2m",
+        }
+      );
+      console.log(token + "=============>", accessToken);
       var decoded = jwt.verify(token, "shhhhh");
       var decoded = jwt.verify(accessToken, "accessToken");
       const db_pass = result.password;
@@ -63,30 +69,24 @@ module.exports = {
       console.log(error);
     }
   },
-  
+
   getUserData: async (req, res) => {
     try {
-    const getUser= await User.findOne({
-      email:req.body.email,
-    })
-    console.log(req.body.email,getUser)
-    } catch (error) {
+    console.log("--0------", req.headers["authorization"]);
+    res.json({ msg: "successfully fetch" });
+    let token = req.headers["authorization"];
+    console.log('=====>', req.headers)
+     if(token){
+        token=token.split(" ")[1]
+        console.log("eeeeeeeeeeeee>",token)
+     }
       
-    }
+      const getUser= await User.findOne({
+        token:token,
+      })
+      res.status(200).json({message: getUser})
+    } catch (error) {}
   },
-  
 
-postUserData: async (req, res) => {
-  try {
-  const getUser= await User.create({
-    name:req.body.name,
-    email:req.body.email,
-    password:req.body.password
-  })
-  res.send(getUser )
-  console.log(req.body.email)
-  } catch (error) {
-    console.log(error)
-  }
-},
+ 
 };
