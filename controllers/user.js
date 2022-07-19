@@ -3,23 +3,24 @@ const User = require("../model/user");
 const { accessToken, refreshToken } = require("../utils/utils");
 
 const bcrypt = require("bcrypt");
+const { response } = require("express");
 module.exports = {
   signup: async (req, res) => {
     try {
-      const pass = await bcrypt.hash(req.body.password, 10);
-      req.body.password = pass;
-
-      const result = await User.findOne({ email: req.body.email });
-      console.log("result", result);
-      if (result) {
-        return res.status(201).json({ message: "user already exist" });
+      const { username, email, password } = req.body;
+      if (!username || !email || !password) {
+        return res.json({ msg: `please enter all fields` });
       }
-
-      console.log("user", { ...req.body });
+      const pass = await bcrypt.hash(password, 10);
+      req.body.password = pass;
+      const result = await User.findOne({ email: req.body.email });
+      if (result) {
+        return res.status(409).json({ message: "user already exist" });
+      }
 
       const createuser = await User({ ...req.body }).save();
       if (!createuser) {
-        res.status(201).send("user is not created ");
+        res.status(404).send("user is not created ");
       }
       res.status(201).send(createuser);
     } catch (error) {
@@ -30,9 +31,13 @@ module.exports = {
 
   login: async (req, res) => {
     try {
-      const result = await User.findOne({ email: req.body.email });
+      const { email, password } = req.body;
+      if (!email || !password)
+        return res.json({ msg: "please enter all field!" });
+
+      const result = await User.findOne({ email, password });
       if (!result) {
-        return res.status(500).send({
+        return res.status(403).send({
           error: "user is not registered",
         });
       }
@@ -63,15 +68,11 @@ module.exports = {
 
   getUserData: async (req, res) => {
     try {
-      console.log("--0------", req.headers["authorization"]);
       res.json({ msg: "successfully fetch" });
       let token = req.headers["authorization"];
-      console.log("=====>", req.headers);
       if (token) {
         token = token.split(" ")[1];
-        console.log("eeeeeeeeeeeee>", token);
       }
-
       const getUser = await User.findOne({
         token: token,
       });
