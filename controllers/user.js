@@ -3,7 +3,6 @@ const User = require("../model/user");
 const { accessToken, refreshToken } = require("../utils/utils");
 
 const bcrypt = require("bcrypt");
-const { response } = require("express");
 module.exports = {
   signup: async (req, res) => {
     try {
@@ -32,10 +31,12 @@ module.exports = {
   login: async (req, res) => {
     try {
       const { email, password } = req.body;
-      if (!email || !password)
+      if (!email || !password) {
         return res.json({ msg: "please enter all field!" });
+      }
 
-      const result = await User.findOne({ email, password });
+      const result = await User.findOne({ email });
+      console.log(result);
       if (!result) {
         return res.status(403).send({
           error: "user is not registered",
@@ -52,7 +53,6 @@ module.exports = {
           { _id: result.id },
           { $set: { token: token } }
         );
-        console.log("=>", token);
         res.status(200).json({
           token: token,
           message: "login successfully",
@@ -61,8 +61,8 @@ module.exports = {
         res.send("invalid login details");
       }
     } catch (error) {
-      res.send(error);
       console.log(error);
+      res.send(error);
     }
   },
 
