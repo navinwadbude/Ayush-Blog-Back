@@ -48,7 +48,7 @@ module.exports = {
       const match = await bcrypt.compare(user_pass, db_pass);
       console.log(match);
       if (match === true) {
-        const token = accessToken(result.email, result.id);
+        const token = refreshToken(result.id);
         const data = await User.findOneAndUpdate(
           { _id: result.id },
           { $set: { token: token } }
