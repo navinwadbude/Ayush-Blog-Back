@@ -1,5 +1,7 @@
 const jwt = require("jsonwebtoken");
 const User = require("../model/user");
+
+const cookie = require('cookie');
 const { accessToken, refreshToken } = require("../utils/utils");
 
 const bcrypt = require("bcrypt");
@@ -36,7 +38,7 @@ module.exports = {
       }
 
       const result = await User.findOne({ email });
-      console.log(result);
+      // console.log(result);
       if (!result) {
         return res.status(403).send({
           error: "user is not registered",
@@ -46,15 +48,21 @@ module.exports = {
       const db_pass = result.password;
       const user_pass = req.body.password;
       const match = await bcrypt.compare(user_pass, db_pass);
-      console.log(match);
+      // console.log(match);
       if (match === true) {
+        
+        const accesstoken = accessToken(result.email,result.id);
         const token = refreshToken(result.id);
         const data = await User.findOneAndUpdate(
           { _id: result.id },
           { $set: { token: token } }
         );
+       res.cookie('cookieName',39849349839, { maxAge: 900000 });
+       res.cookie(`refreshToken=`,token)
+  // res.cookie({'refreshToken': token,httpOnly: true,
+  // maxAge: 24 * 60 * 60 * 1000});
         res.status(200).json({
-          token: token,
+          token: accesstoken,
           message: "login successfully",
         });
       } else {
@@ -79,4 +87,17 @@ module.exports = {
       res.status(200).json({ message: getUser });
     } catch (error) {}
   },
-};
+
+  logout : async(req, res) => {
+    const refreshToken = req.cookies.refreshToken;
+    console.log("543533333>>>>",refreshToken)
+    if(!refreshToken) return res.sendStatus(204);
+    const user = await User.findOne({token: refreshToken});
+    if(!user) return res.sendStatus(204);
+    const userId = user.id;
+    await User.findByIdAndUpdate({_id: userId},{token: null});
+    res.clearCookie('refreshToken');
+    return res.sendStatus(200);
+  }
+}
+

@@ -1,7 +1,7 @@
 
 const { user} = require("../model/user");
 const {jwt}= require("jsonwebtoken");
-const {accessToken}=require("../utils/utils")
+require('dotenv').config()
 exports.refreshToken = async(req, res) => {
     try {
         const refreshToken = req.cookies.refreshToken;
@@ -9,11 +9,14 @@ exports.refreshToken = async(req, res) => {
         const user = await User.findOne({ token: refreshToken });
         if(!user) return res.sendStatus(403);
         jwt.verify(refreshToken, process.env.REFRESH_TOKEN, (err, decoded) => {
-            if(err) return res.json({msg:"refresh token expire"});
+            if(err) return res.json({msg:"refresh token expire"})
+            
             const userId = user.id;
             const username = user.username;
             const email = user.email;
-           const accessToken = accessToken(user.email,user.id)
+            const accessToken = jwt.sign({userId, username, email}, process.env.ACCESS_TOKEN,{
+                expiresIn: '20s'
+            });
             res.json({ accessToken });
         });
     } catch (error) {

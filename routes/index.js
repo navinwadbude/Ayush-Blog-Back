@@ -1,7 +1,7 @@
 const express = require("express");
 const route = new express.Router();
 
-const { signup, login, getUserData } = require("../controllers/user");
+const { signup, login, getUserData, logout } = require("../controllers/user");
 const { verifyToken } = require("../middelware/verfifyToken");
 const { refreshToken } = require("../controllers/RfreshToken.js");
 
@@ -12,6 +12,8 @@ route.get("/", (req, res) => {
 route.post("/signup", signup);
 
 route.post("/login", login);
+
+route.delete('/logout', logout);
 
 route.get('/token', refreshToken);
 
