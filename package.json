@@ -1,0 +1,32 @@
+{
+  "name": "ayush-blog-back",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/navinwadbude/Ayush-Blog-Back.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/navinwadbude/Ayush-Blog-Back/issues"
+  },
+  "homepage": "https://github.com/navinwadbude/Ayush-Blog-Back#readme",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "cookie": "^0.5.0",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "jsonwebtoken": "^8.5.1",
+    "jwt-decode": "^3.1.2",
+    "mongoose": "^6.4.3",
+    "start": "^5.1.0"
+  }
+}
